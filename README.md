@@ -11,3 +11,7 @@ I am making an assumptions such that a single product in the database represents
 4. Ensure that you are in the root directory of the project
 5. Run the service with go run main.go
 6. You can use the included postman collection to try out the APIs
+
+## Test Coverage
+Unfortunately I could not write many tests
+![coverage](./images/coverage.png "Test Coverage")
