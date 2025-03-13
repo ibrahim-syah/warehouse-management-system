@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"warehouse-management-system/dto"
 	"warehouse-management-system/entity"
@@ -53,16 +52,19 @@ func (h *orderHandler) ProcessShippingOrder(ctx *gin.Context) {
 		Type:      "ship",
 	}
 
-	go func() {
-		_, err := h.orderUsecase.ProcessOrder(ctx.Request.Context(), order)
-		if err != nil {
-			err = fmt.Errorf("Error processing order: %v", err)
-			ctx.Error(err)
-		}
-	}()
+	orderID, err := h.orderUsecase.ProcessOrder(ctx.Request.Context(), order)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
 
-	ctx.JSON(http.StatusAccepted, dto.Response{
-		Message: "order is being processed",
+	res := dto.ProcessOrderResponse{
+		OrderID: orderID,
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response{
+		Message: "order processed",
+		Data:    res,
 	})
 }
 
@@ -86,15 +88,18 @@ func (h *orderHandler) ProcessReceiveOrder(ctx *gin.Context) {
 		Type:      "receive",
 	}
 
-	go func() {
-		_, err := h.orderUsecase.ProcessOrder(ctx.Request.Context(), order)
-		if err != nil {
-			err = fmt.Errorf("Error processing order: %v", err)
-			ctx.Error(err)
-		}
-	}()
+	orderID, err := h.orderUsecase.ProcessOrder(ctx.Request.Context(), order)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
 
-	ctx.JSON(http.StatusAccepted, dto.Response{
-		Message: "order is being processed",
+	res := dto.ProcessOrderResponse{
+		OrderID: orderID,
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response{
+		Message: "order processed",
+		Data:    res,
 	})
 }
