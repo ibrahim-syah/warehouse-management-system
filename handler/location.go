@@ -1,12 +1,16 @@
 package handler
 
 import (
+	"encoding/json"
+	"errors"
 	"net/http"
 	"warehouse-management-system/dto"
 	"warehouse-management-system/entity"
+	"warehouse-management-system/sentinel"
 	"warehouse-management-system/usecase"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type LocationHandler interface {
@@ -31,6 +35,13 @@ func NewLocationHandler(
 func (h *locationHandler) AddLocation(ctx *gin.Context) {
 	req := dto.LocationRequest{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
+		var ute *json.UnmarshalTypeError
+		var ve validator.ValidationErrors
+		if errors.As(err, &ute) || errors.As(err, &ve) {
+			ctx.Error(err)
+			return
+		}
+		err = sentinel.ErrInvalidInput
 		ctx.Error(err)
 		return
 	}
@@ -54,6 +65,13 @@ func (h *locationHandler) AddLocation(ctx *gin.Context) {
 func (h *locationHandler) GetLocations(ctx *gin.Context) {
 	req := dto.GetLocationsRequest{}
 	if err := ctx.ShouldBindQuery(&req); err != nil {
+		var ute *json.UnmarshalTypeError
+		var ve validator.ValidationErrors
+		if errors.As(err, &ute) || errors.As(err, &ve) {
+			ctx.Error(err)
+			return
+		}
+		err = sentinel.ErrInvalidInput
 		ctx.Error(err)
 		return
 	}
