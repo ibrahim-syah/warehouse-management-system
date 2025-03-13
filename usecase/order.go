@@ -13,6 +13,8 @@ import (
 
 type OrderUsecase interface {
 	ProcessOrder(ctx context.Context, order *entity.Order) (int, error)
+	GetOrderByID(ctx context.Context, orderID int) (*entity.Order, error)
+	GetOrders(ctx context.Context, req *entity.PaginationParam) ([]entity.Order, int, error)
 }
 
 type orderUsecase struct {
@@ -121,4 +123,43 @@ func (u *orderUsecase) validateOrder(ctx context.Context, order *entity.Order, p
 	}
 
 	return nil
+}
+
+func (u *orderUsecase) GetOrderByID(ctx context.Context, orderID int) (*entity.Order, error) {
+	var order *entity.Order
+	err := u.transactor.WithinTransaction(ctx, func(txCtx context.Context) error {
+		var txErr error
+		order, txErr = u.orderRepo.GetOrderByID(txCtx, orderID)
+		if txErr != nil {
+			if errors.Is(txErr, sentinel.ErrNotFound) {
+				txErr = fmt.Errorf("%w: order not found", sentinel.ErrUsecaseError)
+			}
+			return txErr
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return order, nil
+}
+
+func (u *orderUsecase) GetOrders(ctx context.Context, req *entity.PaginationParam) ([]entity.Order, int, error) {
+	var orders []entity.Order
+	var count int
+	err := u.transactor.WithinTransaction(ctx, func(txCtx context.Context) error {
+		txOrders, txCount, txErr := u.orderRepo.GetOrders(txCtx, req)
+		if txErr != nil {
+			return txErr
+		}
+		orders = txOrders
+		count = txCount
+		return nil
+	})
+	if err != nil {
+		return nil, -1, err
+	}
+
+	return orders, count, nil
 }
