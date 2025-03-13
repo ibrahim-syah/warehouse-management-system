@@ -32,6 +32,11 @@ func SetupUsecases(repositories *appRepositories) *appUsecases {
 		repositories.locationRepo,
 	)
 
+	locationUsecase := usecase.NewLocationUsecase(
+		repositories.transactor,
+		repositories.locationRepo,
+	)
+
 	return &appUsecases{
 		authUsecase:     authUsecase,
 		productUsecase:  productUsecase,

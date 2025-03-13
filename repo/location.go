@@ -80,11 +80,7 @@ func (r *locationRepo) GetLocations(ctx context.Context, req *entity.PaginationP
 
 	query = `SELECT COUNT(id) FROM warehouse_locations`
 	var count int
-	if tx != nil {
-		err = tx.QueryRowContext(ctx, query).Scan(&count)
-	} else {
-		err = r.db.QueryRowContext(ctx, query).Scan(&count)
-	}
+	err = r.db.QueryRowContext(ctx, query).Scan(&count)
 	if err != nil {
 		return nil, -1, err
 	}
