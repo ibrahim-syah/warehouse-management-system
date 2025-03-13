@@ -7,6 +7,7 @@ type appUsecases struct {
 	userUsecase     usecase.UserUsecase
 	productUsecase  usecase.ProductUsecase
 	locationUsecase usecase.LocationUsecase
+	orderUsecase    usecase.OrderUsecase
 }
 
 func SetupUsecases(repositories *appRepositories) *appUsecases {
@@ -32,10 +33,18 @@ func SetupUsecases(repositories *appRepositories) *appUsecases {
 		repositories.locationRepo,
 	)
 
+	orderUsecase := usecase.NewOrderUsecase(
+		repositories.transactor,
+		repositories.orderRepo,
+		repositories.productRepo,
+		repositories.locationRepo,
+	)
+
 	return &appUsecases{
 		authUsecase:     authUsecase,
 		productUsecase:  productUsecase,
 		userUsecase:     userUsecase,
 		locationUsecase: locationUsecase,
+		orderUsecase:    orderUsecase,
 	}
 }

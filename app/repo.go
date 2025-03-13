@@ -10,6 +10,7 @@ type appRepositories struct {
 	userRepo     repo.UserRepo
 	productRepo  repo.ProductRepo
 	locationRepo repo.LocationRepo
+	orderRepo    repo.OrderRepo
 }
 
 func SetupRepositories(db *sql.DB) *appRepositories {
@@ -18,5 +19,6 @@ func SetupRepositories(db *sql.DB) *appRepositories {
 		productRepo:  repo.NewProductRepo(db),
 		userRepo:     repo.NewUserRepo(db),
 		locationRepo: repo.NewLocationRepo(db),
+		orderRepo:    repo.NewOrderRepo(db),
 	}
 }
