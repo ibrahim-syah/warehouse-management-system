@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"warehouse-management-system/entity"
 	"warehouse-management-system/sentinel"
 	"warehouse-management-system/utils/loggerutils"
@@ -110,18 +111,19 @@ func (r *userRepo) GetUsers(ctx context.Context, req *entity.PaginationParam) ([
 		u.deleted_at
 	FROM
 		users u
-	ORDER BY $1 $2
-	LIMIT $3 OFFSET $4;
+	ORDER BY %s %s
+	LIMIT $1 OFFSET $2;
 	`
+	query = fmt.Sprintf(query, req.OrderBy, req.OrderDirection)
 
 	tx := extractTx(ctx)
 	var rows *sql.Rows
 	var err error
 
 	if tx != nil {
-		rows, err = tx.QueryContext(ctx, query, req.OrderBy, req.OrderDirection, req.Limit, req.Offset)
+		rows, err = tx.QueryContext(ctx, query, req.Limit, req.Offset)
 	} else {
-		rows, err = r.db.QueryContext(ctx, query, req.OrderBy, req.OrderDirection, req.Limit, req.Offset)
+		rows, err = r.db.QueryContext(ctx, query, req.Limit, req.Offset)
 	}
 	if err != nil {
 		return nil, -1, err
@@ -154,9 +156,9 @@ func (r *userRepo) GetUsers(ctx context.Context, req *entity.PaginationParam) ([
 
 	var count int
 	if tx != nil {
-		err = tx.QueryRowContext(ctx, query, req.OrderBy, req.OrderDirection, req.Limit, req.Offset).Scan(&count)
+		err = tx.QueryRowContext(ctx, query).Scan(&count)
 	} else {
-		err = r.db.QueryRowContext(ctx, query, req.OrderBy, req.OrderDirection, req.Limit, req.Offset).Scan(&count)
+		err = r.db.QueryRowContext(ctx, query).Scan(&count)
 	}
 	if err != nil {
 		return nil, -1, err

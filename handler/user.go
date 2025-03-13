@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"warehouse-management-system/dto"
+	"warehouse-management-system/entity"
 	"warehouse-management-system/usecase"
 
 	"github.com/gin-gonic/gin"
@@ -54,9 +55,36 @@ func (h *userHandler) GetUsers(ctx *gin.Context) {
 		ctx.Error(err)
 		return
 	}
+	req.DefaultIfEmpty()
 
+	paginatorParam := &entity.PaginationParam{
+		OrderBy:        req.SortedBy,
+		OrderDirection: req.Sort,
+		Limit:          req.Limit,
+		Offset:         (req.Page - 1) * req.Limit,
+	}
+
+	users, count, err := h.userUsecase.GetUsers(ctx.Request.Context(), paginatorParam)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	res := []dto.UserItem{}
+	for _, u := range users {
+		item := dto.UserItem{
+			ID:        u.ID,
+			Email:     u.Email,
+			Role:      u.Role,
+			CreatedAt: u.CreatedAt,
+		}
+		res = append(res, item)
+	}
+
+	paginator := dto.MappingPaginator(req.Page, req.Limit, count)
 	ctx.JSON(http.StatusCreated, dto.Response{
-		Message: "get users success",
-		Data:    req,
+		Message:   "get users success",
+		Data:      res,
+		Paginator: &paginator,
 	})
 }

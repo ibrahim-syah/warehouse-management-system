@@ -18,7 +18,7 @@ type Paginator struct {
 	TotalPages   int `json:"total_pages"`
 }
 
-func (p Paginator) MappingPaginator(page, limit, totalAllRecords int) Paginator {
+func MappingPaginator(page, limit, totalAllRecords int) Paginator {
 	var totalPage int
 	if limit > 0 {
 		totalPage = int(math.Ceil(float64(totalAllRecords) / float64(limit)))
@@ -33,7 +33,7 @@ func (p Paginator) MappingPaginator(page, limit, totalAllRecords int) Paginator 
 		next = page + 1
 	}
 
-	p = Paginator{
+	p := Paginator{
 		CurrentPage:  page,
 		PerPage:      limit,
 		PreviousPage: prev,

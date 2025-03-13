@@ -10,7 +10,7 @@ import (
 
 type UserUsecase interface {
 	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
-	GetUsers(ctx context.Context, req *entity.PaginationParam) ([]entity.User, *entity.PaginationParam, error)
+	GetUsers(ctx context.Context, req *entity.PaginationParam) ([]entity.User, int, error)
 }
 
 type userUsecase struct {
@@ -49,7 +49,7 @@ func (u *userUsecase) GetUserByEmail(ctx context.Context, email string) (*entity
 	return user, nil
 }
 
-func (u *userUsecase) GetUsers(ctx context.Context, req *entity.PaginationParam) ([]entity.User, *entity.PaginationParam, error) {
+func (u *userUsecase) GetUsers(ctx context.Context, req *entity.PaginationParam) ([]entity.User, int, error) {
 	var user []entity.User
 	var count int
 	err := u.transactor.WithinTransaction(ctx, func(txCtx context.Context) error {
@@ -63,10 +63,8 @@ func (u *userUsecase) GetUsers(ctx context.Context, req *entity.PaginationParam)
 		return nil
 	})
 	if err != nil {
-		return nil, nil, err
+		return nil, -1, err
 	}
 
-	req.TotalRecords = count
-
-	return user, req, nil
+	return user, count, nil
 }
