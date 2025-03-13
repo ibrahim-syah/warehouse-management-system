@@ -1,5 +1,11 @@
 package main
 
+import (
+	envutils "warehouse-management-system/utils/env"
+	"warehouse-management-system/utils/loggerutils"
+)
+
 func main() {
-	println("hello world")
+	loggerutils.SetLogger(loggerutils.NewLogrusLogger())
+	envutils.LoadEnv()
 }
