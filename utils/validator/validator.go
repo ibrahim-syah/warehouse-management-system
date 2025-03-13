@@ -3,6 +3,7 @@ package validatorutils
 import (
 	"reflect"
 	"strings"
+	passwordutils "warehouse-management-system/utils/password"
 
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/locales/en"
@@ -26,6 +27,14 @@ func SetupValidator() {
 		uni := ut.New(en, en)
 		trans, _ = uni.GetTranslator(en.Locale())
 		en_translations.RegisterDefaultTranslations(v, trans)
+
+		v.RegisterValidation("password", passwordStrengthCheck)
+		v.RegisterTranslation(
+			"password",
+			trans,
+			registerTranslator("password", "{0} must have at least 8 characters, 1 upper case character, 1 number, and 1 special character"),
+			translate,
+		)
 	}
 }
 
@@ -33,6 +42,11 @@ var trans ut.Translator
 
 func GetTranslator() ut.Translator {
 	return trans
+}
+
+var passwordStrengthCheck validator.Func = func(fl validator.FieldLevel) bool {
+	sevenOrMore, number, upper, special := passwordutils.CheckPasswordStrength(fl.Field().String())
+	return sevenOrMore && number && upper && special
 }
 
 func registerTranslator(tag string, msg string) validator.RegisterTranslationsFunc {
