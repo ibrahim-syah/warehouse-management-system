@@ -6,7 +6,7 @@ type GetUsersRequest struct {
 }
 
 type UserItem struct {
-	ID        string
+	ID        int
 	Email     string
 	Role      string
 	CreatedAt string

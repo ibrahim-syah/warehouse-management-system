@@ -4,6 +4,7 @@ import "warehouse-management-system/usecase"
 
 type appUsecases struct {
 	authUsecase    usecase.AuthUsecase
+	userUsecase    usecase.UserUsecase
 	productUsecase usecase.ProductUsecase
 }
 
@@ -13,6 +14,12 @@ func SetupUsecases(repositories *appRepositories) *appUsecases {
 		repositories.transactor,
 		repositories.userRepo,
 	)
+
+	userUsecase := usecase.NewUserUsecase(
+		repositories.transactor,
+		repositories.userRepo,
+	)
+
 	productUsecase := usecase.NewProductUsecase(
 		repositories.transactor,
 	)
@@ -20,5 +27,6 @@ func SetupUsecases(repositories *appRepositories) *appUsecases {
 	return &appUsecases{
 		authUsecase:    authUsecase,
 		productUsecase: productUsecase,
+		userUsecase:    userUsecase,
 	}
 }

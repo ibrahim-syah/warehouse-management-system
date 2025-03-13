@@ -6,11 +6,13 @@ import (
 	"errors"
 	"warehouse-management-system/entity"
 	"warehouse-management-system/sentinel"
+	"warehouse-management-system/utils/loggerutils"
 )
 
 type UserRepo interface {
 	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
 	InsertUser(ctx context.Context, req *entity.InsertUser) (int, error)
+	GetUsers(ctx context.Context, req *entity.PaginationParam) ([]entity.User, int, error)
 }
 
 type userRepo struct {
@@ -93,4 +95,74 @@ func (r *userRepo) InsertUser(ctx context.Context, req *entity.InsertUser) (int,
 	}
 
 	return ID, nil
+}
+
+func (r *userRepo) GetUsers(ctx context.Context, req *entity.PaginationParam) ([]entity.User, int, error) {
+	res := []entity.User{}
+
+	query := `
+	SELECT
+		u.id,
+		u.email,
+		u.role,
+		u.created_at,
+		u.updated_at,
+		u.deleted_at
+	FROM
+		users u
+	ORDER BY $1 $2
+	LIMIT $3 OFFSET $4;
+	`
+
+	tx := extractTx(ctx)
+	var rows *sql.Rows
+	var err error
+
+	if tx != nil {
+		rows, err = tx.QueryContext(ctx, query, req.OrderBy, req.OrderDirection, req.Limit, req.Offset)
+	} else {
+		rows, err = r.db.QueryContext(ctx, query, req.OrderBy, req.OrderDirection, req.Limit, req.Offset)
+	}
+	if err != nil {
+		return nil, -1, err
+	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			loggerutils.LoggerSingleton.Fatal()
+		}
+	}()
+
+	for rows.Next() {
+		var user entity.User
+		err := rows.Scan(&user.ID, &user.Email, &user.Role, &user.CreatedAt, &user.UpdatedAt, &user.DeletedAt)
+		if err != nil {
+			return nil, -1, err
+		}
+		res = append(res, user)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, -1, err
+	}
+
+	query = `
+	SELECT
+		COUNT(id)
+	FROM
+		users u
+	`
+
+	var count int
+	if tx != nil {
+		err = tx.QueryRowContext(ctx, query, req.OrderBy, req.OrderDirection, req.Limit, req.Offset).Scan(&count)
+	} else {
+		err = r.db.QueryRowContext(ctx, query, req.OrderBy, req.OrderDirection, req.Limit, req.Offset).Scan(&count)
+	}
+	if err != nil {
+		return nil, -1, err
+	}
+
+	req.TotalRecords = count
+
+	return res, count, nil
 }

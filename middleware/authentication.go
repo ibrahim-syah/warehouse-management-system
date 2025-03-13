@@ -31,5 +31,6 @@ func AuthenticationMiddleware(ctx *gin.Context) {
 	}
 
 	ctx.Set("UserID", claims.UserID)
+	ctx.Set("Email", claims.Email)
 	ctx.Set("Role", claims.Role)
 }

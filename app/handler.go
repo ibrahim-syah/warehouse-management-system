@@ -12,7 +12,7 @@ type appHandlers struct {
 
 func SetupHandler(usecases *appUsecases) *appHandlers {
 	authHandler := handler.NewAuthHandler(usecases.authUsecase)
-	userHandler := handler.NewUserHandler()
+	userHandler := handler.NewUserHandler(usecases.userUsecase)
 	productHandler := handler.NewProductHandler(usecases.productUsecase)
 
 	return &appHandlers{

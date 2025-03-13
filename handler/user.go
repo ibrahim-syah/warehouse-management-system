@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"warehouse-management-system/dto"
+	"warehouse-management-system/usecase"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,34 +14,36 @@ type UserHandler interface {
 }
 
 type userHandler struct {
-	// userUsecase usecase.AuthUsecase
+	userUsecase usecase.UserUsecase
 }
 
 func NewUserHandler(
-// userUsecase usecase.AuthUsecase,
+	userUsecase usecase.UserUsecase,
 ) UserHandler {
 	handler := &userHandler{
-		// authUsecase: authUsecase,
+		userUsecase: userUsecase,
 	}
 
 	return handler
 }
 
 func (h *userHandler) GetCurrentUser(ctx *gin.Context) {
-	userID := ctx.GetInt("UserID")
-	role := ctx.GetString("Role")
+	email := ctx.GetString("Email")
 
-	// loginToken, err := h.authUsecase.Login(ctx.Request.Context(), &credential)
-	// if err != nil {
-	// 	ctx.Error(err)
-	// 	return
-	// }
-	res := dto.LoginResponse{
-		AccessToken: role,
+	user, err := h.userUsecase.GetUserByEmail(ctx.Request.Context(), email)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+	res := dto.UserItem{
+		ID:        user.ID,
+		Email:     user.Email,
+		Role:      user.Role,
+		CreatedAt: user.CreatedAt,
 	}
 
 	ctx.JSON(http.StatusOK, dto.Response{
-		Message: fmt.Sprintf("%v", userID),
+		Message: "success",
 		Data:    res,
 	})
 }
