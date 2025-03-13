@@ -9,9 +9,9 @@ import (
 )
 
 type CustomClaims struct {
-	ClientID int    `json:"client_id"`
-	Email    string `json:"email"`
-	Role     string `json:"role"`
+	UserID int    `json:"user_id"`
+	Email  string `json:"email"`
+	Role   string `json:"role"`
 }
 
 type UserClaims struct {
@@ -29,13 +29,13 @@ func GenerateJWT(client CustomClaims) (string, error) {
 	now := time.Now()
 	claims := UserClaims{
 		CustomClaims: CustomClaims{
-			ClientID: client.ClientID,
-			Email:    client.Email,
-			Role:     client.Role,
+			UserID: client.UserID,
+			Email:  client.Email,
+			Role:   client.Role,
 		},
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:  jwtIssuer,
-			Subject: fmt.Sprint(client.ClientID),
+			Subject: fmt.Sprint(client.UserID),
 			IssuedAt: &jwt.NumericDate{
 				Time: now,
 			},

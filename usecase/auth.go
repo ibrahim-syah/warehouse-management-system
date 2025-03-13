@@ -57,9 +57,9 @@ func (u *authUsecase) Login(ctx context.Context, req *entity.EmailPassword) (*en
 	}
 
 	clientClaims := jwtutils.CustomClaims{
-		ClientID: user.ID,
-		Email:    user.Email,
-		Role:     user.Role,
+		UserID: user.ID,
+		Email:  user.Email,
+		Role:   user.Role,
 	}
 	jwt, err := jwtutils.GenerateJWT(clientClaims)
 	if err != nil {
