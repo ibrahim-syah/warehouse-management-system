@@ -7,7 +7,7 @@ create table users (
     role varchar not null check (role in ('admin', 'staff', 'guest')),
 	created_at timestamp not null default (now()),
   	updated_at timestamp not null default (now()),
-   	deleted_at timestamp
+   	-- deleted_at timestamp
 );
 
 create table warehouse_locations (
@@ -16,7 +16,7 @@ create table warehouse_locations (
     capacity integer not null check (capacity >= 0),
 	created_at timestamp not null default (now()),
   	updated_at timestamp not null default (now()),
-   	deleted_at timestamp
+   	-- deleted_at timestamp
 );
 
 create table products (
@@ -27,7 +27,7 @@ create table products (
     location_id integer not null references warehouse_locations(id),
 	created_at timestamp not null default (now()),
   	updated_at timestamp not null default (now()),
-   	deleted_at timestamp
+   	-- deleted_at timestamp
 );
 
 CREATE TABLE orders (
@@ -37,5 +37,5 @@ CREATE TABLE orders (
     type varchar not null check (type in ('receive', 'ship')),
 	created_at timestamp not null default (now()),
   	updated_at timestamp not null default (now()),
-   	deleted_at timestamp
+   	-- deleted_at timestamp
 );

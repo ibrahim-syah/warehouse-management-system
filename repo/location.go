@@ -3,13 +3,16 @@ package repo
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"warehouse-management-system/entity"
+	"warehouse-management-system/sentinel"
 )
 
 type LocationRepo interface {
 	InsertLocation(ctx context.Context, location *entity.Location) (int, error)
 	GetLocations(ctx context.Context, req *entity.PaginationParam) ([]entity.Location, int, error)
+	GetLocationByID(ctx context.Context, locationID int) (*entity.Location, error)
 }
 
 type locationRepo struct {
@@ -87,4 +90,32 @@ func (r *locationRepo) GetLocations(ctx context.Context, req *entity.PaginationP
 	}
 
 	return locations, count, nil
+}
+
+func (r *locationRepo) GetLocationByID(ctx context.Context, locationID int) (*entity.Location, error) {
+	query := `
+	SELECT id, name, capacity, created_at, updated_at, deleted_at
+	FROM warehouse_locations
+	WHERE id = $1`
+
+	var location entity.Location
+	var err error
+	tx := extractTx(ctx)
+	if tx != nil {
+		err = tx.QueryRowContext(ctx, query, locationID).Scan(
+			&location.ID, &location.Name, &location.Capacity, &location.CreatedAt, &location.UpdatedAt, &location.DeletedAt,
+		)
+	} else {
+		err = r.db.QueryRowContext(ctx, query, locationID).Scan(
+			&location.ID, &location.Name, &location.Capacity, &location.CreatedAt, &location.UpdatedAt, &location.DeletedAt,
+		)
+	}
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			err = sentinel.ErrNotFound
+		}
+		return nil, err
+	}
+
+	return &location, nil
 }

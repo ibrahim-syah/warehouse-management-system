@@ -2,12 +2,13 @@ package entity
 
 type (
 	Product struct {
-		ID          int
-		Name        string
-		CategoryID  int
-		Description string
-		CreatedAt   string
-		UpdatedAt   string
-		DeletedAt   *string
+		ID         int
+		Name       string
+		SKU        string
+		Quantity   int
+		LocationID int
+		CreatedAt  string
+		UpdatedAt  string
+		DeletedAt  *string
 	}
 )

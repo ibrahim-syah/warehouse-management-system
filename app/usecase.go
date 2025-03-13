@@ -23,6 +23,8 @@ func SetupUsecases(repositories *appRepositories) *appUsecases {
 
 	productUsecase := usecase.NewProductUsecase(
 		repositories.transactor,
+		repositories.productRepo,
+		repositories.locationRepo,
 	)
 
 	locationUsecase := usecase.NewLocationUsecase(
